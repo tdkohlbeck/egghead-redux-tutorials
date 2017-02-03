@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { createStore } from 'redux';
 
-import logo from './logo.svg';
 import './App.css';
 
 const counter = (state = 0, action) => {
@@ -26,39 +25,47 @@ const Counter = ({
 );
 
 const addCounter = (list) => {
-  list.push(0);
-  return list;
+  return list.concat(0);
 };
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-          <h3>yey...</h3>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <Counter
-          value={store.getState()}
-          onIncrement={() => {
-            store.dispatch({
-              type: 'INCREMENT',
-            })
-          }}
-          onDecrement={() => {
-            store.dispatch({
-              type: 'DECREMENT',
-            })
-          }}
-        />
-      </div>
-    );
-  }
+const removeCounter = (list, index) => {
+  return [
+    ...list.slice(0, index),
+    ...list.slice(index + 1)
+  ];
+};
+
+const incrementCounter = (list, index) => {
+  return [
+    ...list.slice(0, index),
+    list[index] + 1,
+    ...list.slice(index + 1),
+  ];
 }
 
-export { addCounter };
+const App = () => {
+  return (
+    <div className="app">
+      <Counter
+        value={store.getState()}
+        onIncrement={() => {
+          store.dispatch({
+            type: 'INCREMENT',
+          })
+        }}
+        onDecrement={() => {
+          store.dispatch({
+            type: 'DECREMENT',
+          })
+        }}
+      />
+    </div>
+  );
+}
+
+export {
+  addCounter,
+  removeCounter,
+  incrementCounter,
+};
 export default App;
