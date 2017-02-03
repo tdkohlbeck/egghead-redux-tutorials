@@ -43,6 +43,13 @@ const incrementCounter = (list, index) => {
   ];
 }
 
+const toggleTodo = (todo) => {
+  return {
+    ...todo,
+    completed: !todo.completed,
+  }
+}
+
 const App = () => {
   return (
     <div className="app">
@@ -67,5 +74,6 @@ export {
   addCounter,
   removeCounter,
   incrementCounter,
+  toggleTodo,
 };
 export default App;

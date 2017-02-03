@@ -6,6 +6,7 @@ import App, {
   addCounter,
   removeCounter,
   incrementCounter,
+  toggleTodo,
 } from './App';
 
 describe('the app', () => {
@@ -51,5 +52,24 @@ describe('incrementCounter', () => {
     expect(
       incrementCounter(listBefore, 1)
     ).toEqual(listAfter);
+  });
+});
+
+describe('toggleTodo', () => {
+  it('toggles a todo', () => {
+    const todoBefore = {
+      id: 0,
+      text: 'Learn Redux',
+      completed: false,
+    };
+    const todoAfter = {
+      id: 0,
+      text: 'Learn Redux',
+      completed: true,
+    };
+
+    deepFreeze(todoBefore);
+
+    expect(toggleTodo(todoBefore)).toEqual(todoAfter);
   });
 });
