@@ -6,7 +6,6 @@ import App, {
   addCounter,
   removeCounter,
   incrementCounter,
-  toggleTodo,
   todos,
 } from './App';
 
@@ -56,25 +55,6 @@ describe('incrementCounter', () => {
   });
 });
 
-describe('toggleTodo', () => {
-  it('toggles a todo', () => {
-    const todoBefore = {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false,
-    };
-    const todoAfter = {
-      id: 0,
-      text: 'Learn Redux',
-      completed: true,
-    };
-
-    deepFreeze(todoBefore);
-
-    expect(toggleTodo(todoBefore)).toEqual(todoAfter);
-  });
-});
-
 describe('todos reducer', () => {
   it('adds a todo', () => {
     const stateBefore = [];
@@ -88,6 +68,42 @@ describe('todos reducer', () => {
         id: 0,
         text: 'yey',
         completed: false,
+      },
+    ];
+
+    deepFreeze(stateBefore);
+    deepFreeze(action);
+
+    expect(todos(stateBefore, action)).toEqual(stateAfter);
+  });
+
+  it('toggles a todo', () => {
+    const stateBefore = [
+      {
+        id: 0,
+        text: 'yey',
+        completed: false,
+      },
+      {
+        id: 1,
+        text: 'bravo',
+        completed: false,
+      },
+    ];
+    const action = {
+      type: 'TOGGLE_TODO',
+      id: 1
+    };
+    const stateAfter = [
+      {
+        id: 0,
+        text: 'yey',
+        completed: false,
+      },
+      {
+        id: 1,
+        text: 'bravo',
+        completed: true,
       },
     ];
 
