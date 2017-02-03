@@ -3,6 +3,22 @@ import { createStore } from 'redux';
 
 import './App.css';
 
+const todos = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [
+        ...state,
+        {
+          id: action.id,
+          text: action.text,
+          completed: false,
+        },
+      ];
+    default:
+      return state;
+  }
+};
+
 const counter = (state = 0, action) => {
   switch (action.type) {
     case 'INCREMENT': return state + 1;
@@ -75,5 +91,6 @@ export {
   removeCounter,
   incrementCounter,
   toggleTodo,
+  todos,
 };
 export default App;

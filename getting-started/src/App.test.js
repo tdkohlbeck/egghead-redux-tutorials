@@ -7,6 +7,7 @@ import App, {
   removeCounter,
   incrementCounter,
   toggleTodo,
+  todos,
 } from './App';
 
 describe('the app', () => {
@@ -71,5 +72,28 @@ describe('toggleTodo', () => {
     deepFreeze(todoBefore);
 
     expect(toggleTodo(todoBefore)).toEqual(todoAfter);
+  });
+});
+
+describe('todos reducer', () => {
+  it('adds a todo', () => {
+    const stateBefore = [];
+    const action = {
+      type: 'ADD_TODO',
+      id: 0,
+      text: 'yey',
+    };
+    const stateAfter = [
+      {
+        id: 0,
+        text: 'yey',
+        completed: false,
+      },
+    ];
+
+    deepFreeze(stateBefore);
+    deepFreeze(action);
+
+    expect(todos(stateBefore, action)).toEqual(stateAfter);
   });
 });
