@@ -71,7 +71,8 @@ const store = createStore(todoApp);
 const FilterLink = ({
   currFilter,
   filter,
-  children
+  children,
+  onClick,
 }) =>  { // href='#' -> e.preventDefault() ?
   if (filter === currFilter) {
     return (<span>{children}</span>);
@@ -81,10 +82,7 @@ const FilterLink = ({
       href='#'
       onClick={e => {
         e.preventDefault();
-        store.dispatch({
-          type: 'SET_VIS_FILTER',
-          filter,
-        })
+        onClick(filter);
       }}
     >
       {children}
@@ -139,64 +137,94 @@ const TodoList = ({
   </ul>
 );
 
+const AddTodo = ({
+  onAddClick,
+}) => {
+  let input;
+  return (
+    <div>
+      <input ref={node => {
+          input = node;
+        }} />
+      <button onClick={() => {
+          onAddClick(input.value);
+          input.value = '';
+        }}>
+        Add Todo
+      </button>
+    </div>
+  );
+};
+
+const Footer = ({
+  visFilter,
+  onFilterClick,
+}) => (
+  <p>
+    Show:
+    {' '}
+    <FilterLink
+      filter='SHOW_ALL'
+      currFilter={visFilter}
+      onClick={onFilterClick}
+    > All </FilterLink>
+    {' '}
+    <FilterLink
+      filter='SHOW_ACTIVE'
+      currFilter={visFilter}
+      onClick={onFilterClick}
+    > Active </FilterLink>
+    {' '}
+    <FilterLink
+      filter='SHOW_COMPLETED'
+      currFilter={visFilter}
+      onClick={onFilterClick}
+    > Completed </FilterLink>
+  </p>
+);
+
 let nextTodoId = 0;
-class TodoApp extends Component {
-  render() {
-    const {
-      todos,
-      visFilter
-    } = this.props;
-    const visTodos = getVisTodos(
-      todos,
-      visFilter,
-    );
-    console.log(visTodos);
-    return (
-      <div>
-        <input ref={node => {
-            this.input = node;
-          }} />
-        <button onClick={() => {
-            store.dispatch({
-              type: 'ADD_TODO',
-              text: this.input.value,
-              id: nextTodoId++,
-            });
-            this.input.value = '';
-          }}>
-          Add Todo
-        </button>
-        <TodoList
-          todos={visTodos}
-          onTodoClick={id =>
-            store.dispatch({
-              type: 'TOGGLE_TODO',
-              id
-            })
-          }
-        />
-        <p>
-          Show:
-          {' '}
-          <FilterLink
-            filter='SHOW_ALL'
-            currFilter={visFilter}
-          > All </FilterLink>
-          {' '}
-          <FilterLink
-            filter='SHOW_ACTIVE'
-            currFilter={visFilter}
-          > Active </FilterLink>
-          {' '}
-          <FilterLink
-            filter='SHOW_COMPLETED'
-            currFilter={visFilter}
-          > Completed </FilterLink>
-        </p>
-      </div>
-    )
-  }
-}
+const TodoApp = ({
+  todos,
+  visFilter,
+}) => (
+  <div>
+
+    <AddTodo
+      onAddClick={text =>
+        store.dispatch({
+          type: 'ADD_TODO',
+          id: nextTodoId++,
+          text,
+        })
+      }
+    />
+
+    <TodoList
+      todos={getVisTodos(
+        todos,
+        visFilter,
+      )}
+      onTodoClick={id =>
+        store.dispatch({
+          type: 'TOGGLE_TODO',
+          id
+        })
+      }
+    />
+
+    <Footer
+      visFilter={visFilter}
+      onFilterClick={filter =>
+        store.dispatch({
+          type: 'SET_VIS_FILTER',
+          filter,
+        })
+      }
+    />
+
+  </div>
+);
 
 export {
   todos,
