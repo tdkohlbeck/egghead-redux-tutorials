@@ -1,24 +1,29 @@
 // @flow
 
-import React from 'react';
-import { createStore } from 'redux';
+import React, { Component } from 'react';
+import {
+  createStore,
+  combineReducers,
+} from 'redux';
 
 import './App.css';
 
 const todo = (state = {}, action) => {
   switch (action.type) {
+
     case 'ADD_TODO':
       return {
         id: action.id,
         text: action.text,
         completed: false,
       };
+
     case 'TOGGLE_TODO':
       if (state.id !== action.id) return state;
-      return {
-        ...state,
+      return { ...state,
         completed: !state.completed,
       };
+
     default:
       return state;
   }
@@ -26,82 +31,76 @@ const todo = (state = {}, action) => {
 
 const todos = (state = [], action) => {
   switch (action.type) {
+
     case 'ADD_TODO':
-      return [
-        ...state,
+      return [ ...state,
         todo(undefined, action),
       ];
+
     case 'TOGGLE_TODO':
-      return state.map(t => todo(t, action));
+      return state.map( t => todo(t, action) );
+
     default:
       return state;
   }
 };
 
-const counter = (state = 0, action) => {
+const visFilter = (state = 'SHOW_ALL', action) => {
   switch (action.type) {
-    case 'INCREMENT': return state + 1;
-    case 'DECREMENT': return state - 1;
+    case 'SET_VIS_FILTER': return action.filter;
     default: return state;
   }
 };
-const store = createStore(counter);
 
-const Counter = ({
-  value,
-  onIncrement,
-  onDecrement,
-}) => (
-  <div>
-    <h1>{value}</h1>
-    <button onClick={onIncrement}>+</button>
-    <button onClick={onDecrement}>-</button>
-  </div>
-);
+const todoApp = combineReducers({
+  todos,
+  visFilter,
+});
 
-const addCounter = (list) => {
-  return list.concat(0);
-};
+// same as:
+//
+//const todoApp = (state = {}, action) => {
+//  return {
+//    todos: todos(state.todos, action),
+//    visFilter: visFilter(state.visFilter, action),
+//  };
+//};
 
-const removeCounter = (list, index) => {
-  return [
-    ...list.slice(0, index),
-    ...list.slice(index + 1)
-  ];
-};
+const store = createStore(todoApp);
 
-const incrementCounter = (list, index: number) => {
-  return [
-    ...list.slice(0, index),
-    list[index] + 1,
-    ...list.slice(index + 1),
-  ];
-}
-
-const App = () => {
-  return (
-    <div className="app">
-      <Counter
-        value={store.getState()}
-        onIncrement={() => {
-          store.dispatch({
-            type: 'INCREMENT',
-          })
-        }}
-        onDecrement={() => {
-          store.dispatch({
-            type: 'DECREMENT',
-          })
-        }}
-      />
-    </div>
-  );
+let nextTodoId = 0;
+class TodoApp extends Component {
+  render() {
+    return (
+      <div>
+        <input ref={node => {
+            this.input = node;
+          }} />
+        <button onClick={() => {
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.input.value,
+              id: nextTodoId++,
+            });
+            this.input.value = '';
+          }}>
+          Add Todo
+        </button>
+        <ul>
+          {this.props.todos.map(todo =>
+              <li key={todo.id}>
+                {todo.text}
+              </li>
+          )}
+        </ul>
+      </div>
+    )
+  }
 }
 
 export {
-  addCounter,
-  removeCounter,
-  incrementCounter,
   todos,
+  todoApp,
+  store,
 };
-export default App;
+export default TodoApp;
