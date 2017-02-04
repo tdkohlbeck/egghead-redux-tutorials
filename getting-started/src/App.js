@@ -68,9 +68,58 @@ const todoApp = combineReducers({
 
 const store = createStore(todoApp);
 
+const FilterLink = ({
+  currFilter,
+  filter,
+  children
+}) =>  { // href='#' -> e.preventDefault() ?
+  if (filter === currFilter) {
+    return (<span>{children}</span>);
+  }
+  return (
+    <a
+      href='#'
+      onClick={e => {
+        e.preventDefault();
+        store.dispatch({
+          type: 'SET_VIS_FILTER',
+          filter,
+        })
+      }}
+    >
+      {children}
+    </a>
+  );
+};
+
+const getVisTodos = (
+  todos,
+  filter
+) => {
+  switch (filter) {
+    case 'SHOW_ALL': return todos;
+    case 'SHOW_COMPLETED': return todos.filter(
+      t => t.completed
+    );
+    case 'SHOW_ACTIVE': return todos.filter(
+      t => !t.completed
+    );
+    default: return todos;
+  }
+};
+
 let nextTodoId = 0;
 class TodoApp extends Component {
   render() {
+    const {
+      todos,
+      visFilter
+    } = this.props;
+    const visTodos = getVisTodos(
+      todos,
+      visFilter,
+    );
+    console.log(visTodos);
     return (
       <div>
         <input ref={node => {
@@ -87,12 +136,42 @@ class TodoApp extends Component {
           Add Todo
         </button>
         <ul>
-          {this.props.todos.map(todo =>
-              <li key={todo.id}>
-                {todo.text}
-              </li>
+          {visTodos.map(todo =>
+            <li
+              key={todo.id}
+              onClick={() => {
+                store.dispatch({
+                  type: 'TOGGLE_TODO',
+                  id: todo.id,
+                });
+              }}
+              style={{
+                textDecoration: todo.completed ?
+                  'line-through' :
+                  'none'
+              }}>
+              {todo.text}
+            </li>
           )}
         </ul>
+        <p>
+          Show:
+          {' '}
+          <FilterLink
+            filter='SHOW_ALL'
+            currFilter={visFilter}
+          > All </FilterLink>
+          {' '}
+          <FilterLink
+            filter='SHOW_ACTIVE'
+            currFilter={visFilter}
+          > Active </FilterLink>
+          {' '}
+          <FilterLink
+            filter='SHOW_COMPLETED'
+            currFilter={visFilter}
+          > Completed </FilterLink>
+        </p>
       </div>
     )
   }
