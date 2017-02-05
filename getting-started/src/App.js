@@ -54,9 +54,8 @@ const todoApp = combineReducers({
 
 const store = createStore(todoApp);
 
-const AddTodo = ({
-  onAddClick,
-  }) => {
+let nextTodoId = 0;
+const AddTodo = () => {
   let input;
   return (
     <div>
@@ -64,9 +63,13 @@ const AddTodo = ({
           input = node;
         }} />
       <button onClick={() => {
-          onAddClick(input.value);
-          input.value = '';
-        }}>
+        store.dispatch({
+          type: 'ADD_TODO',
+          id: nextTodoId++,
+          text: input.value,
+        });
+        input.value = '';
+      }}>
         Add Todo
       </button>
     </div>
@@ -188,34 +191,43 @@ const Footer = () => (
   </p>
 );
 
-let nextTodoId = 0;
-const TodoApp = ({
-  todos,
-  visFilter,
-  }) => (
+class VisTodoList extends Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() =>
+      this.forceUpdate()
+    );
+  }
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+  render() {
+    //const props = this.props;
+    const state = store.getState();
+
+    return (
+      <TodoList
+        todos={
+          getVisTodos(
+            state.todos,
+            state.visFilter
+          )
+        }
+        onTodoClick={id =>
+          store.dispatch({
+            type: 'TOGGLE_TODO',
+            id,
+          })
+        }
+      />
+    );
+  }
+}
+
+const TodoApp = () => (
   <div>
 
-    <AddTodo
-      onAddClick={text =>
-        store.dispatch({
-          type: 'ADD_TODO',
-          id: nextTodoId++,
-          text,
-        })
-      }
-    />
-    <TodoList
-      todos={getVisTodos(
-        todos,
-        visFilter,
-      )}
-      onTodoClick={id =>
-        store.dispatch({
-          type: 'TOGGLE_TODO',
-          id
-        })
-      }
-    />
+    <AddTodo />
+    <VisTodoList />
     <Footer />
   </div>
 );
